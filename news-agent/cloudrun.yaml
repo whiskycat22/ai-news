@@ -1,0 +1,15 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: news-agent
+spec:
+  template:
+    spec:
+      containers:
+        - image: gcr.io/proudly-artificial-469010/news-agent:latest
+          env:
+          - name: GOOGLE_PROJECT
+            value: "proudly-artificial-469010"
+          - name: PORT
+            value: "8080"
+      timeoutSeconds: 600
