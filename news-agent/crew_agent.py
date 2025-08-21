@@ -1,9 +1,15 @@
 import warnings
 warnings.filterwarnings("ignore")
 from crewai import Agent, Task, Crew, LLM
+import re
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+os.environ["GOOGLE_CLOUD_PROJECT"] = "proudly-artificial-469010"
 
 llm = LLM(
-    model="gemini-2.0-flash",
+    model="gemini-2.5-flash-lite",
     temperature=0.7,
     timeout=180,
     max_tokens=5000,
@@ -11,8 +17,8 @@ llm = LLM(
     frequency_penalty=0.1,
     presence_penalty=0.1,
     response_format={"type": "json"},
-    seed=42,
-    api_key=GEMINI_API_KEY
+    provider="vertex_ai",
+    seed=42
 )
 
 # Planner: outlines the article

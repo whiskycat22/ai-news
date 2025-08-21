@@ -1,0 +1,35 @@
+steps:
+  # Step 1: Build Docker image
+    - name: 'gcr.io/cloud-builders/docker'
+      args:
+        [
+          'build',
+          '--build-arg', 'NEWS_AGENT_URL=https://news-agent-fql3bnb6za-ew.a.run.app/generate',
+          '-t', 'gcr.io/proudly-artificial-469010/ai-news-fe',
+          '.'
+        ]
+
+      # Step 2: Push Docker image to GCR
+    - name: 'gcr.io/cloud-builders/docker'
+      args:
+        [
+          'push',
+          'gcr.io/proudly-artificial-469010/ai-news-fe'
+        ]
+
+      # Step 3: Deploy to Cloud Run
+    - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+      entrypoint: gcloud
+      args:
+        [
+          'run',
+          'deploy', 'ai-news-fe',
+          '--image', 'gcr.io/proudly-artificial-469010/ai-news-fe',
+          '--platform', 'managed',
+          '--region', 'europe-west1',      # change region if needed
+          '--allow-unauthenticated',
+          '--port', '8080'
+        ]
+
+images:
+  - 'gcr.io/proudly-artificial-469010/ai-news-fe'

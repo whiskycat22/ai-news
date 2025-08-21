@@ -1,0 +1,32 @@
+{
+  "name": "ai-news-fe",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack",
+    "start": "next start",
+    "lint": "eslint"
+  },
+    "dependencies": {
+    "next": "15.5.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-markdown": "^8.0.6",
+    "rehype-sanitize": "^5.0.1",
+    "unified": "^10.1.2",
+    "vfile": "^5.3.7",
+    "axios": "^1.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.2",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.2.2",
+    "eslint": "^9.0.0",
+    "@eslint/eslintrc": "^3",
+    "eslint-config-next": "15.5.0",
+    "tailwindcss": "^4",
+    "@tailwindcss/postcss": "^4"
+  }
+}
