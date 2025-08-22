@@ -4,7 +4,7 @@ steps:
       args:
         [
           'build',
-          '--build-arg', 'NEWS_AGENT_URL=https://news-agent-fql3bnb6za-ew.a.run.app/generate',
+          '--build-arg', 'NEWS_AGENT_URL=https://news-agent-1062443559048.europe-west1.run.app/generate',
           '-t', 'gcr.io/proudly-artificial-469010/ai-news-fe',
           '.'
         ]

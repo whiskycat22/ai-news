@@ -1,15 +1,34 @@
-apiVersion: serving.knative.dev/v1
-kind: Service
-metadata:
-  name: news-agent
-spec:
-  template:
-    spec:
-      containers:
-        - image: gcr.io/proudly-artificial-469010/news-agent:latest
-          env:
-          - name: GOOGLE_PROJECT
-            value: "proudly-artificial-469010"
-          - name: PORT
-            value: "8080"
-      timeoutSeconds: 600
+steps:
+  # Step 1: Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+        '-t', 'gcr.io/proudly-artificial-469010/news-agent',
+        '.'
+      ]
+
+  # Step 2: Push image to GCR
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'push',
+        'gcr.io/proudly-artificial-469010/news-agent'
+      ]
+
+  # Step 3: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      [
+        'run', 'deploy', 'news-agent',
+        '--image', 'gcr.io/proudly-artificial-469010/news-agent',
+        '--platform', 'managed',
+        '--region', 'europe-west1',    # change region if needed
+        '--allow-unauthenticated',
+        '--port', '8080',
+        '--timeout', '600s'
+      ]
+
+images:
+  - 'gcr.io/proudly-artificial-469010/news-agent'

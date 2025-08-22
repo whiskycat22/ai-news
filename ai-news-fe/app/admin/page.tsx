@@ -1,18 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import ReactMarkdown from "react-markdown";
-import rehypeSanitize from "rehype-sanitize";
-import type { Pluggable } from "unified";
+
+interface Section {
+  heading: string;
+  content: string;
+}
 
 interface Article {
-  topic: string;
-  markdown: string;
+  title: string;
+  subtitle: string;
+  sections: Section[];
 }
 
 export default function AdminPage() {
   const [topic, setTopic] = useState<string>("");
-  const [article, setArticle] = useState<string>("");
+  const [article, setArticle] = useState<Article | null>(null);
   const [articlesList, setArticlesList] = useState<Article[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -27,22 +30,31 @@ export default function AdminPage() {
         body: JSON.stringify({ topic }),
       });
 
-      // Read text first, then parse JSON safely
       const text = await res.text();
       let data;
       try {
         data = JSON.parse(text);
       } catch {
-        data = { markdown: "Error: Cloud Run did not return valid JSON" };
+        data = { error: "Cloud Run did not return valid JSON" };
       }
 
-      const markdown = data.markdown || data.text || JSON.stringify(data);
-      setArticle(markdown);
+      if (data.error) {
+        console.error("API error:", data.error);
+        setArticle(null);
+        return;
+      }
 
-      setArticlesList((prev) => [{ topic, markdown }, ...prev]);
+      const articleObj: Article = {
+        title: data.title || topic,
+        subtitle: data.subtitle || "",
+        sections: data.sections || [],
+      };
+
+      setArticle(articleObj);
+      setArticlesList((prev) => [articleObj, ...prev]);
     } catch (err) {
       console.error(err);
-      setArticle("Error generating article");
+      setArticle(null);
     } finally {
       setLoading(false);
     }
@@ -68,39 +80,34 @@ export default function AdminPage() {
         </button>
       </div>
 
+      {/* Show latest generated article */}
       {article && (
-        <div
-          style={{
-            marginTop: "2rem",
-            border: "1px solid #ccc",
-            padding: "1rem",
-            borderRadius: "6px",
-            backgroundColor: "#f9f9f9",
-          }}
-        >
-          <h2>Generated Article</h2>
-          <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{article}</ReactMarkdown>
+        <div style={{ marginTop: "2rem" }}>
+          <h2>{article.title}</h2>
+          {article.subtitle && <h4>{article.subtitle}</h4>}
+          {article.sections.map((sec, idx) => (
+            <div key={idx} style={{ marginTop: "1.5rem" }}>
+              <h3>{sec.heading}</h3>
+              <p>{sec.content}</p>
+            </div>
+          ))}
         </div>
       )}
 
-      {articlesList.length > 0 && (
-        <div style={{ marginTop: "2rem" }}>
-          <h2>Saved Articles</h2>
-          {articlesList.map((a, idx) => (
-            <div
-              key={idx}
-              style={{
-                border: "1px solid #ccc",
-                padding: "1rem",
-                marginBottom: "1rem",
-                borderRadius: "6px",
-                backgroundColor: "#fefefe",
-              }}
-            >
-              <h3>{a.topic}</h3>
-              <ReactMarkdown rehypePlugins={[rehypeSanitize as Pluggable]}>
-                {a.markdown}
-              </ReactMarkdown>
+      {/* History of generated articles */}
+      {articlesList.length > 1 && (
+        <div style={{ marginTop: "3rem" }}>
+          <h2>History</h2>
+          {articlesList.slice(1).map((a, i) => (
+            <div key={i} style={{ marginTop: "2rem", borderTop: "1px solid #ccc", paddingTop: "1rem" }}>
+              <h3>{a.title}</h3>
+              {a.subtitle && <h5>{a.subtitle}</h5>}
+              {a.sections.map((s, j) => (
+                <div key={j} style={{ marginTop: "1rem" }}>
+                  <h4>{s.heading}</h4>
+                  <p>{s.content}</p>
+                </div>
+              ))}
             </div>
           ))}
         </div>
